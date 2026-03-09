@@ -844,4 +844,102 @@
       observer.observe(el);
     });
 
-    // Glitch
+    
+    // Glitch title effect
+    const glitchTarget = document.querySelector('.hero-name .line2');
+    if (glitchTarget) {
+      setInterval(() => {
+        glitchTarget.style.textShadow = '2px 0 #FF2D78, -2px 0 #3ECFCF';
+        setTimeout(() => { glitchTarget.style.textShadow = 'none'; }, 80);
+      }, 3500);
+    }
+
+    // ── TYPEWRITER on hero tag ──
+    const heroTag = document.querySelector('.hero-tag');
+    if (heroTag) {
+      const originalText = heroTag.textContent;
+      heroTag.textContent = '';
+      heroTag.style.opacity = '1';
+      let i = 0;
+      const type = () => {
+        if (i < originalText.length) {
+          heroTag.textContent += originalText[i++];
+          setTimeout(type, 45);
+        }
+      };
+      setTimeout(type, 800);
+    }
+
+    // ── NEON FLICKER on PHILTON watermark ──
+    const philton = document.querySelector('[style*="PHILTON"]') ||
+      [...document.querySelectorAll('div')].find(d => d.textContent.trim() === 'PHILTON');
+    if (philton) {
+      const flicker = () => {
+        const steps = [0.28, 0.05, 0.28, 0.1, 0.28, 0.02, 0.28];
+        steps.forEach((op, idx) => {
+          setTimeout(() => {
+            philton.style.webkitTextStroke = `1px rgba(62,207,207,${op})`;
+          }, idx * 60);
+        });
+        setTimeout(flicker, 4000 + Math.random() * 3000);
+      };
+      setTimeout(flicker, 2000);
+    }
+
+    // ── PARTICLE SPARKS following cursor ──
+    const COLORS = ['#3ECFCF','#4DFF72','#E8132A','#ffffff'];
+    document.addEventListener('mousemove', e => {
+      if (Math.random() > 0.55) return;
+      const spark = document.createElement('div');
+      const size = Math.random() * 5 + 2;
+      spark.style.cssText = `
+        position:fixed;
+        left:${e.clientX}px;
+        top:${e.clientY}px;
+        width:${size}px;
+        height:${size}px;
+        border-radius:50%;
+        background:${COLORS[Math.floor(Math.random()*COLORS.length)]};
+        pointer-events:none;
+        z-index:9997;
+        transform:translate(-50%,-50%);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+        box-shadow: 0 0 ${size*2}px currentColor;
+      `;
+      document.body.appendChild(spark);
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = Math.random() * 40 + 15;
+      requestAnimationFrame(() => {
+        spark.style.opacity = '0';
+        spark.style.transform = `translate(calc(-50% + ${Math.cos(angle)*dist}px), calc(-50% + ${Math.sin(angle)*dist}px))`;
+      });
+      setTimeout(() => spark.remove(), 650);
+    });
+
+    // ── RIPPLE on click ──
+    document.addEventListener('click', e => {
+      const ripple = document.createElement('div');
+      ripple.style.cssText = `
+        position:fixed;
+        left:${e.clientX}px;
+        top:${e.clientY}px;
+        width:8px; height:8px;
+        border:2px solid var(--cyan);
+        border-radius:50%;
+        pointer-events:none;
+        z-index:9997;
+        transform:translate(-50%,-50%) scale(1);
+        opacity:1;
+        transition: transform 0.6s ease, opacity 0.6s ease;
+      `;
+      document.body.appendChild(ripple);
+      requestAnimationFrame(() => {
+        ripple.style.transform = 'translate(-50%,-50%) scale(12)';
+        ripple.style.opacity   = '0';
+      });
+      setTimeout(() => ripple.remove(), 650);
+    });
+
+  </script>
+</body>
+</html>
