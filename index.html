@@ -56,24 +56,28 @@
 
     /* ── CURSOR ── */
     .cursor {
-      width: 12px; height: 12px;
+      width: 20px; height: 20px;
       border: 2px solid var(--cyan);
-      position: fixed; top: 0; left: 0;
+      position: fixed; top: -100px; left: -100px;
       pointer-events: none; z-index: 9999;
       transform: translate(-50%, -50%);
-      transition: width 0.2s, height 0.2s, background 0.2s;
+      transition: width 0.15s, height 0.15s, background 0.15s, border-color 0.15s;
+      box-shadow: 0 0 8px var(--cyan), inset 0 0 4px rgba(62,207,207,0.1);
     }
     .cursor.hover {
-      width: 36px; height: 36px;
-      background: rgba(0,245,255,0.15);
+      width: 42px; height: 42px;
+      background: rgba(62,207,207,0.12);
+      border-color: var(--cyan);
+      box-shadow: 0 0 16px var(--cyan);
     }
     .cursor-dot {
-      width: 4px; height: 4px;
+      width: 5px; height: 5px;
       background: var(--cyan);
-      position: fixed; top: 0; left: 0;
+      position: fixed; top: -100px; left: -100px;
       pointer-events: none; z-index: 9999;
       transform: translate(-50%, -50%);
       border-radius: 50%;
+      box-shadow: 0 0 6px var(--cyan);
     }
 
     /* ── NAV ── */
@@ -808,24 +812,51 @@
     const cursor = document.getElementById('cursor');
     const dot    = document.getElementById('cursorDot');
     let mx = 0, my = 0, cx = 0, cy = 0;
+    let cursorVisible = false;
 
-    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    // Hide on mobile/touch devices
+    if ('ontouchstart' in window) {
+      cursor.style.display = 'none';
+      dot.style.display = 'none';
+      document.body.style.cursor = 'auto';
+    } else {
+      document.addEventListener('mousemove', e => {
+        mx = e.clientX;
+        my = e.clientY;
+        if (!cursorVisible) {
+          cursorVisible = true;
+          cursor.style.opacity = '1';
+          dot.style.opacity = '1';
+          cx = mx; cy = my;
+        }
+        // Dot follows instantly
+        dot.style.left = mx + 'px';
+        dot.style.top  = my + 'px';
+      });
 
-    function animCursor() {
-      cx += (mx - cx) * 0.12;
-      cy += (my - cy) * 0.12;
-      cursor.style.left = cx + 'px';
-      cursor.style.top  = cy + 'px';
-      dot.style.left = mx + 'px';
-      dot.style.top  = my + 'px';
-      requestAnimationFrame(animCursor);
+      document.addEventListener('mouseleave', () => {
+        cursor.style.opacity = '0';
+        dot.style.opacity = '0';
+      });
+      document.addEventListener('mouseenter', () => {
+        cursor.style.opacity = '1';
+        dot.style.opacity = '1';
+      });
+
+      function animCursor() {
+        cx += (mx - cx) * 0.14;
+        cy += (my - cy) * 0.14;
+        cursor.style.left = cx + 'px';
+        cursor.style.top  = cy + 'px';
+        requestAnimationFrame(animCursor);
+      }
+      animCursor();
+
+      document.querySelectorAll('a, button, .post-card, .game-tag, .project-card').forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+      });
     }
-    animCursor();
-
-    document.querySelectorAll('a, button, .post-card, .game-tag').forEach(el => {
-      el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-      el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
-    });
 
     // Scroll reveal
     const observer = new IntersectionObserver(entries => {
